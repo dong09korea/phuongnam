@@ -1,10 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import { Plus, Calendar, Clock, Bus, User, MapPin, ChevronLeft, ChevronRight, XCircle, Search } from "lucide-react";
-
-import { CalendarClock, ArrowRight, Trash2, Copy, Settings, Save, CalendarDays } from "lucide-react";
+import { getAdminTrips, createAdminTrip, updateAdminTrip, deleteAdminTrip, createAdminSchedule, deleteAdminSchedule, getVehicles, getDrivers, getAdminSchedules } from "@/lib/api";
+import { Plus, Calendar, Clock, Bus, User, MapPin, ChevronLeft, ChevronRight, XCircle, Search, CalendarClock, ArrowRight, Trash2, Copy, Settings, Save, CalendarDays } from "lucide-react";
 
 // --- Types ---
 interface Trip {
@@ -69,40 +67,61 @@ export default function SchedulePage() {
     }, [selectedDate]);
 
     const fetchResources = async () => {
-        const { data: vParams } = await supabase.from('vehicles').select('id, plate_number, type').eq('status', 'active');
-        const { data: dParams } = await supabase.from('drivers').select('id, name, phone').eq('status', 'active');
-        const { data: rParams } = await supabase.from('routes').select('*').eq('is_active', true);
+        try {
+            const vParams = await getVehicles();
+            const dParams = await getDrivers();
+            const rParams = await getAdminSchedules();
 
-        if (vParams) setVehicles(vParams.map(v => ({ id: v.id, label: v.plate_number, subLabel: v.type })));
-        if (dParams) setDrivers(dParams.map(d => ({ id: d.id, label: d.name, subLabel: d.phone })));
-        if (rParams) setRoutes(rParams);
+            if (vParams) setVehicles(vParams.map((v: any) => ({ id: v.id, label: v.plate_number, subLabel: v.vehicle_type })));
+            if (dParams) setDrivers(dParams.map((d: any) => ({ id: d.id, label: d.driver_name, subLabel: d.phone })));
+            if (rParams) setRoutes(rParams);
+        } catch (error) {
+            console.error("Error fetching resources:", error);
+        }
     };
 
     const fetchTrips = async (date: string) => {
         setLoading(true);
-        const { data, error } = await supabase
-            .from('trips')
-            .select(`
-                *,
-                routes (origin, destination, base_price),
-                vehicles (plate_number, type),
-                drivers (name, phone)
-            `)
-            .eq('departure_date', date)
-            .order('departure_time', { ascending: true });
-
-        if (error) console.error(error);
-        else setTrips(data || []);
+        try {
+            const data = await getAdminTrips(date);
+            const adapted = data.map((t: any) => {
+                const dt = new Date(t.planned_departure_time);
+                return {
+                    id: t.id.toString(),
+                    route_id: t.schedule_id?.toString() || "",
+                    departure_time: dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+                    departure_date: dt.toISOString().split('T')[0],
+                    routes: { origin: t.from_location, destination: t.to_location, base_price: 250000 },
+                    price: 250000,
+                    status: t.current_status,
+                    vehicle_id: t.vehicle_id?.toString() || null,
+                    driver_id: t.driver_id?.toString() || null,
+                    vehicles: t.vehicle ? { plate_number: t.vehicle.plate_number, type: t.vehicle.vehicle_type } : undefined,
+                    drivers: t.driver ? { name: t.driver.driver_name, phone: t.driver.phone } : undefined
+                };
+            });
+            setTrips(adapted);
+        } catch (error) {
+            console.error("Error fetching trips:", error);
+        }
         setLoading(false);
     };
 
     const fetchTemplates = async () => {
-        const { data, error } = await supabase
-            .from('schedule_templates')
-            .select(`*, routes (origin, destination)`)
-            .order('departure_time', { ascending: true });
-
-        if (data) setTemplates(data);
+        try {
+            const data = await getAdminSchedules();
+            const adapted = data.map((s: any) => ({
+                id: s.id.toString(),
+                route_id: s.id.toString(),
+                departure_time: s.departure_time,
+                price: s.base_price,
+                vehicle_id: null,
+                routes: { origin: s.from_location, destination: s.to_location }
+            }));
+            setTemplates(adapted);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     // --- Actions ---
@@ -117,19 +136,29 @@ export default function SchedulePage() {
 
         // Validation
         if (!routeId) { alert("Please select a route"); return; }
+        
+        const route = routes.find(r => r.id.toString() === routeId);
+        if (!route) return;
 
-        const { error } = await supabase.from('trips').insert([{
-            route_id: routeId,
-            departure_date: selectedDate,
-            departure_time: time,
-            price: parseInt(price),
-            status: 'scheduled'
-        }]);
+        const dtStr = `${selectedDate}T${time}:00`;
+        const planned_departure_time = new Date(dtStr).toISOString();
 
-        if (error) alert("Error: " + error.message);
-        else {
+        try {
+            await createAdminTrip({
+                trip_code: "",
+                schedule_id: parseInt(routeId),
+                vehicle_id: vehicles.length > 0 ? parseInt(vehicles[0].id) : 1,
+                driver_id: drivers.length > 0 ? parseInt(drivers[0].id) : 1,
+                route_name: `${route.from_location} -> ${route.to_location}`,
+                from_location: route.from_location,
+                to_location: route.to_location,
+                planned_departure_time: planned_departure_time,
+                current_status: "scheduled"
+            });
             setShowCreateModal(false);
             fetchTrips(selectedDate);
+        } catch (error: any) {
+            alert("Error: " + error.message);
         }
     };
 
@@ -142,22 +171,26 @@ export default function SchedulePage() {
         const driverId = form.driver_id.value || null;
         const vehicleId = form.vehicle_id.value || null;
 
-        const { error } = await supabase
-            .from('trips')
-            .update({ driver_id: driverId, vehicle_id: vehicleId })
-            .eq('id', showAssignModal.id);
-
-        if (error) alert("Error: " + error.message);
-        else {
+        try {
+            await updateAdminTrip(parseInt(showAssignModal.id), {
+                driver_id: driverId ? parseInt(driverId) : null,
+                vehicle_id: vehicleId ? parseInt(vehicleId) : null
+            });
             setShowAssignModal(null);
             fetchTrips(selectedDate);
+        } catch (error: any) {
+            alert("Error: " + error.message);
         }
     };
 
     const handleDeleteTrip = async (id: string) => {
         if (!confirm("Cancel this trip? This will affect bookings!")) return;
-        await supabase.from('trips').delete().eq('id', id);
-        fetchTrips(selectedDate);
+        try {
+            await deleteAdminTrip(parseInt(id));
+            fetchTrips(selectedDate);
+        } catch (error: any) {
+            alert("Error: " + error.message);
+        }
     }
 
     // --- Template Actions ---
@@ -174,110 +207,111 @@ export default function SchedulePage() {
         const time = form.t_time.value;
         const price = form.price.value;
 
-        const { error } = await supabase.from('schedule_templates').insert([{
-            route_id: routeId,
-            departure_time: time,
-            price: parseInt(price)
-        }]);
+        const route = routes.find((r: any) => r.id.toString() === routeId);
+        if (!route) return;
 
-        if (error) alert(error.message);
-        else fetchTemplates(); // Refresh list
+        try {
+            await createAdminSchedule({
+                route_name: `${route.from_location} -> ${route.to_location}`,
+                from_location: route.from_location,
+                to_location: route.to_location,
+                departure_time: time,
+                estimated_duration: 2.5,
+                base_price: parseInt(price),
+                available_vehicle_type: "Limousine",
+                active: true
+            });
+            fetchTemplates();
+        } catch (error: any) {
+            alert(error.message);
+        }
     };
 
     const handleDeleteTemplate = async (id: string) => {
-        await supabase.from('schedule_templates').delete().eq('id', id);
-        fetchTemplates();
+        try {
+            await deleteAdminSchedule(parseInt(id));
+            fetchTemplates();
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     // Modified Auto Fill / Bulk Gen
     const handleBulkGenerate = async () => {
-        // Validation
-        if (!bulkStartDate || !bulkEndDate) {
-            alert("Please select both start and end dates.");
-            return;
-        }
-        if (new Date(bulkStartDate) > new Date(bulkEndDate)) {
-            alert("Start date cannot be after end date.");
-            return;
-        }
-
+        if (!bulkStartDate || !bulkEndDate) { alert("Please select both dates."); return; }
+        if (new Date(bulkStartDate) > new Date(bulkEndDate)) { alert("Start date cannot be after end date."); return; }
         if (!confirm(`Generate schedule from ${bulkStartDate} to ${bulkEndDate}?`)) return;
 
-        // 1. Fetch templates
-        const { data: templates } = await supabase.from('schedule_templates').select('*');
-        if (!templates || templates.length === 0) {
+        let dbTemplates: any[] = [];
+        try { dbTemplates = await getAdminSchedules(); } catch (err) {}
+        
+        if (dbTemplates.length === 0) {
             alert("No templates found! Create some templates first.");
             return;
         }
 
         setLoading(true);
-
-        // 2. Loop dates
-        const newTrips = [];
+        let count = 0;
         let curr = new Date(bulkStartDate);
         const end = new Date(bulkEndDate);
 
         while (curr <= end) {
             const dateStr = curr.toISOString().split('T')[0];
-
-            // Generate trips for this date
-            const dailyTrips = templates.map(t => ({
-                route_id: t.route_id,
-                departure_date: dateStr,
-                departure_time: t.departure_time,
-                price: t.price,
-                vehicle_id: t.vehicle_id,
-                status: 'scheduled'
-            }));
-
-            newTrips.push(...dailyTrips);
-
-            // Next day
+            for (const t of dbTemplates) {
+                const dtStr = `${dateStr}T${t.departure_time}:00`;
+                await createAdminTrip({
+                    trip_code: "",
+                    schedule_id: t.id,
+                    vehicle_id: vehicles.length > 0 ? parseInt(vehicles[0].id) : 1,
+                    driver_id: drivers.length > 0 ? parseInt(drivers[0].id) : 1,
+                    route_name: `${t.from_location} -> ${t.to_location}`,
+                    from_location: t.from_location,
+                    to_location: t.to_location,
+                    planned_departure_time: new Date(dtStr).toISOString(),
+                    current_status: "scheduled"
+                }).catch(console.error);
+                count++;
+            }
             curr.setDate(curr.getDate() + 1);
         }
 
-        // 3. Insert All
-        const { error } = await supabase.from('trips').insert(newTrips);
-
         setLoading(false);
-
-        if (error) alert("Error creating schedule: " + error.message);
-        else {
-            alert(`Successfully created ${newTrips.length} trips across ${Math.floor((end.getTime() - new Date(bulkStartDate).getTime()) / (1000 * 60 * 60 * 24)) + 1} days!`);
-            fetchTrips(selectedDate); // Refresh current view
-            setShowTemplateModal(false);
-        }
+        alert(`Successfully created ${count} trips!`);
+        fetchTrips(selectedDate);
+        setShowTemplateModal(false);
     };
 
     const handleAutoFill = async () => {
         if (!confirm(`Generate daily schedule for ${selectedDate} from templates?`)) return;
 
-        // 1. Fetch templates
-        const { data: templates } = await supabase.from('schedule_templates').select('*');
-        if (!templates || templates.length === 0) {
+        let dbTemplates: any[] = [];
+        try { dbTemplates = await getAdminSchedules(); } catch (err) {}
+        
+        if (dbTemplates.length === 0) {
             alert("No templates found! Create some templates first.");
             return;
         }
 
-        // 2. Prepare Insert Payload
-        const newTrips = templates.map(t => ({
-            route_id: t.route_id,
-            departure_date: selectedDate,
-            departure_time: t.departure_time,
-            price: t.price,
-            vehicle_id: t.vehicle_id, // include default vehicle if set
-            status: 'scheduled'
-        }));
-
-        // 3. Insert
-        const { error } = await supabase.from('trips').insert(newTrips);
-
-        if (error) alert("Error creating schedule: " + error.message);
-        else {
-            fetchTrips(selectedDate);
-            alert(`Successfully created ${newTrips.length} trips!`);
-            setShowTemplateModal(false);
+        let count = 0;
+        for (const t of dbTemplates) {
+            const dtStr = `${selectedDate}T${t.departure_time}:00`;
+            await createAdminTrip({
+                trip_code: "",
+                schedule_id: t.id,
+                vehicle_id: vehicles.length > 0 ? parseInt(vehicles[0].id) : 1,
+                driver_id: drivers.length > 0 ? parseInt(drivers[0].id) : 1,
+                route_name: `${t.from_location} -> ${t.to_location}`,
+                from_location: t.from_location,
+                to_location: t.to_location,
+                planned_departure_time: new Date(dtStr).toISOString(),
+                current_status: "scheduled"
+            }).catch(console.error);
+            count++;
         }
+
+        fetchTrips(selectedDate);
+        alert(`Successfully created ${count} trips!`);
+        setShowTemplateModal(false);
     };
 
     return (
@@ -409,7 +443,7 @@ export default function SchedulePage() {
                                 <select name="route_id" className="w-full p-2 border rounded" required>
                                     <option value="">Select a Route</option>
                                     {routes.map(r => (
-                                        <option key={r.id} value={r.id}>{r.origin} - {r.destination}</option>
+                                        <option key={r.id} value={r.id}>{r.from_location} - {r.to_location}</option>
                                     ))}
                                 </select>
                             </div>
@@ -471,7 +505,7 @@ export default function SchedulePage() {
                                 <select name="t_route_id" className="w-full p-2 border rounded text-sm" required>
                                     <option value="">Select Route</option>
                                     {routes.map(r => (
-                                        <option key={r.id} value={r.id}>{r.origin} - {r.destination}</option>
+                                        <option key={r.id} value={r.id}>{r.from_location} - {r.to_location}</option>
                                     ))}
                                 </select>
                             </div>

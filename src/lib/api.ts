@@ -83,6 +83,13 @@ export const updateDriver = (id: number, data: any) => fetchWithConfig(`/admin/d
 export const deleteDriver = (id: number) => fetchWithConfig(`/admin/drivers/${id}`, { method: 'DELETE' });
 
 export const getAdminSchedules = () => fetchWithConfig('/admin/schedules');
+export const createAdminSchedule = (data: any) => fetchWithConfig('/admin/schedules', { method: 'POST', body: JSON.stringify(data) });
+export const deleteAdminSchedule = (id: number) => fetchWithConfig(`/admin/schedules/${id}`, { method: 'DELETE' });
+
+export const getAdminTrips = (date?: string) => fetchWithConfig(`/admin/trips${date ? `?date=${date}` : ''}`);
+export const createAdminTrip = (data: any) => fetchWithConfig('/admin/trips', { method: 'POST', body: JSON.stringify(data) });
+export const updateAdminTrip = (id: number, data: any) => fetchWithConfig(`/admin/trips/${id}`, { method: 'PATCH', body: JSON.stringify(data) });
+export const deleteAdminTrip = (id: number) => fetchWithConfig(`/admin/trips/${id}`, { method: 'DELETE' });
 
 export const getActiveFleet = () => fetchWithConfig('/admin/fleet/active');
 
