@@ -127,6 +127,8 @@ export const translations = {
         remainingBalance: "Remaining Balance",
         payDeposit30: "Pay Deposit (30%)",
         payBalanceOnline: "Pay Balance Online",
+        payOnBoardAction: "Pay on Board",
+        payOnBoardAlert: "Request to pay on board noted. Please pay the driver upon boarding.",
         ticketVoid: "TICKET VOID",
     },
     vi: {
@@ -255,6 +257,8 @@ export const translations = {
         remainingBalance: "Số tiền còn lại",
         payDeposit30: "Đặt cọc (30%)",
         payBalanceOnline: "Thanh toán Online",
+        payOnBoardAction: "Thanh toán trên xe",
+        payOnBoardAlert: "Yêu cầu thanh toán trên xe đã được ghi nhận. Vui lòng thanh toán cho tài xế khi lên xe.",
         ticketVoid: "VÉ ĐÃ HỦY",
     },
     ko: {
@@ -373,6 +377,8 @@ export const translations = {
         remainingBalance: "잔여 결제 금액",
         payDeposit30: "계약금 결제 (30%)",
         payBalanceOnline: "온라인 결제하기",
+        payOnBoardAction: "현장결제 (기사님께)",
+        payOnBoardAlert: "현장결제가 접수되었습니다. 탑승 시 기사님께 직접 결제해주세요.",
         ticketVoid: "무효 처리된 티켓",
     }
 };

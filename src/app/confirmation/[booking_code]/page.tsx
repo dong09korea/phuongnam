@@ -38,10 +38,18 @@ export default function ConfirmationPage({ params }: { params: Promise<{ booking
         }
     };
 
-    const handlePayment = async (paymentType: "deposit" | "full") => {
+    const handlePayment = async (paymentType: "deposit" | "full", method: "vnpay" | "cash" = "vnpay") => {
         try {
             setPaymentLoading(true);
-            const txn = await initializePayment(bookingCode, "vnpay", paymentType);
+            const txn = await initializePayment(bookingCode, method, paymentType);
+            
+            if (method === "cash") {
+                alert(t.payOnBoardAlert || "Request to pay on board noted. Please pay the driver upon boarding.");
+                // After noting cash, re-fetch to reflect any local status changes if backend was set to update it
+                // For MVP, we'll just let them know. The booking remains unpaid until the driver collects.
+                return;
+            }
+            
             // Mock gateway redirect
             if (txn.payment_url) {
                 window.location.href = txn.payment_url;
@@ -228,7 +236,10 @@ export default function ConfirmationPage({ params }: { params: Promise<{ booking
                                     </div>
                                     
                                     {!isCancelled && (
-                                        <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
+                                        <div style={{ display: "flex", gap: "8px", marginTop: "8px", flexWrap: "wrap", justifyContent: "flex-end" }}>
+                                            <button onClick={() => handlePayment("full", "cash")} disabled={paymentLoading} className="btn" style={{ flexBasis: "100%", backgroundColor: "#f8fafc", color: "#475569", border: "1px dashed #cbd5e1", fontSize: "12px", padding: "8px", fontWeight: "600" }}>
+                                                {t.payOnBoardAction}
+                                            </button>
                                             {payment_status === "unpaid" && (
                                                 <button onClick={() => handlePayment("deposit")} disabled={paymentLoading} className="btn" style={{ flex: 1, backgroundColor: "white", color: "#0f172a", border: "1px solid #cbd5e1", fontSize: "12px", padding: "8px" }}>
                                                     {t.payDeposit30}
