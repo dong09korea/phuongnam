@@ -35,7 +35,32 @@ def search_schedules(
         models.Schedule.to_location.ilike(f"%{to_location}%"),
         models.Schedule.active == True
     ).all()
-    return schedules
+    
+    result = []
+    for s in schedules:
+        # ForMVP: exact matching for from/to location, but we use ilike on the input so 
+        # we'll match reservations based on the SCHEDULE's exact location strings since 
+        # the booking form submits them.
+        reservations = db.query(models.Reservation).filter(
+            models.Reservation.from_location == s.from_location,
+            models.Reservation.to_location == s.to_location,
+            models.Reservation.depart_date == depart_date,
+            models.Reservation.depart_time == s.departure_time,
+            models.Reservation.status != models.BookingStatus.cancelled
+        ).all()
+        
+        booked_seats = []
+        for r in reservations:
+            if r.seat_number:
+                seats = [seat.strip() for seat in r.seat_number.split(',') if seat.strip()]
+                booked_seats.extend(seats)
+        
+        # Prepare the output object
+        s_dict = schemas.ScheduleOut.from_orm(s).dict()
+        s_dict['booked_seats'] = booked_seats
+        result.append(s_dict)
+        
+    return result
 
 @router.post("/bookings", response_model=schemas.ReservationOut)
 def create_booking(booking_in: schemas.ReservationCreate, db: Session = Depends(get_db)):

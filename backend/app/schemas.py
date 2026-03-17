@@ -92,6 +92,7 @@ class ScheduleUpdate(ScheduleBase):
 
 class ScheduleOut(ScheduleBase):
     id: int
+    booked_seats: List[str] = []
 
 # --- Reservation ---
 class ReservationBase(ConfiguredBaseModel):

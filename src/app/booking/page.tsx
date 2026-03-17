@@ -318,42 +318,54 @@ function BookingContent() {
                                     ].map((row, rIndex) => (
                                         <div key={rIndex} className="flex gap-8 justify-center w-full">
                                             <div className="flex gap-3">
-                                                {row.slice(0, 2).map(seat => (
+                                                {row.slice(0, 2).map(seat => {
+                                                    const isBooked = selectedSchedule?.booked_seats?.includes(seat);
+                                                    return (
                                                     <div 
                                                         key={seat}
                                                         onClick={() => {
+                                                            if (isBooked) return;
                                                             if (selectedSeats.includes(seat)) {
                                                                 setSelectedSeats(selectedSeats.filter(s => s !== seat));
                                                             } else if (selectedSeats.length < passengerCount) {
                                                                 setSelectedSeats([...selectedSeats, seat]);
                                                             }
                                                         }}
-                                                        className={`w-12 h-12 rounded-t-lg rounded-b-sm border-2 flex items-center justify-center font-bold text-sm cursor-pointer transition-colors shadow-sm
-                                                            ${selectedSeats.includes(seat) ? 'bg-primary border-primary text-white shadow-primary/30' : 'bg-white border-gray-300 text-gray-600 hover:border-primary/50'}
+                                                        className={`w-12 h-12 rounded-t-lg rounded-b-sm border-2 flex items-center justify-center font-bold text-sm transition-colors shadow-sm
+                                                            ${isBooked ? 'bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed' :
+                                                              selectedSeats.includes(seat) ? 'bg-primary border-primary text-white shadow-primary/30 cursor-pointer' : 
+                                                              'bg-white border-gray-300 text-gray-600 hover:border-primary/50 cursor-pointer'}
                                                         `}
                                                     >
                                                         {seat}
                                                     </div>
-                                                ))}
+                                                )})}
                                             </div>
                                             {/* Aisle */}
                                             <div className="w-4"></div>
                                             {/* Single Window Seat */}
-                                            <div 
-                                                onClick={() => {
-                                                    const seat = row[2];
-                                                    if (selectedSeats.includes(seat)) {
-                                                        setSelectedSeats(selectedSeats.filter(s => s !== seat));
-                                                    } else if (selectedSeats.length < passengerCount) {
-                                                        setSelectedSeats([...selectedSeats, seat]);
-                                                    }
-                                                }}
-                                                className={`w-12 h-12 rounded-t-lg rounded-b-sm border-2 flex items-center justify-center font-bold text-sm cursor-pointer transition-colors shadow-sm
-                                                    ${selectedSeats.includes(row[2]) ? 'bg-primary border-primary text-white shadow-primary/30' : 'bg-white border-gray-300 text-gray-600 hover:border-primary/50'}
-                                                `}
-                                            >
-                                                {row[2]}
-                                            </div>
+                                            {(() => {
+                                                const seat = row[2];
+                                                const isBooked = selectedSchedule?.booked_seats?.includes(seat);
+                                                return (
+                                                <div 
+                                                    onClick={() => {
+                                                        if (isBooked) return;
+                                                        if (selectedSeats.includes(seat)) {
+                                                            setSelectedSeats(selectedSeats.filter(s => s !== seat));
+                                                        } else if (selectedSeats.length < passengerCount) {
+                                                            setSelectedSeats([...selectedSeats, seat]);
+                                                        }
+                                                    }}
+                                                    className={`w-12 h-12 rounded-t-lg rounded-b-sm border-2 flex items-center justify-center font-bold text-sm transition-colors shadow-sm
+                                                        ${isBooked ? 'bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed' :
+                                                          selectedSeats.includes(seat) ? 'bg-primary border-primary text-white shadow-primary/30 cursor-pointer' : 
+                                                          'bg-white border-gray-300 text-gray-600 hover:border-primary/50 cursor-pointer'}
+                                                    `}
+                                                >
+                                                    {seat}
+                                                </div>
+                                            );})()}
                                         </div>
                                     ))}
                                 </div>
