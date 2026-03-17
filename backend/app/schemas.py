@@ -105,6 +105,7 @@ class ReservationBase(ConfiguredBaseModel):
     passenger_count: int = Field(..., gt=0)
     luggage_count: int = 0
     special_note: Optional[str] = None
+    seat_number: Optional[str] = None
 
 class ReservationCreate(ReservationBase):
     customer: CustomerCreate # nested creation

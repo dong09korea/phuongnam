@@ -77,6 +77,7 @@ export default function ConfirmationPage({ params }: { params: Promise<{ booking
         depart_date,
         depart_time,
         passenger_count,
+        seat_number,
         total_amount,
         payment_status,
         deposit_amount,
@@ -174,8 +175,8 @@ export default function ConfirmationPage({ params }: { params: Promise<{ booking
                             <div style={{ fontWeight: "700", color: "#171717" }}>{depart_date}</div>
                         </div>
                         <div style={{ textAlign: "right" }}>
-                            <div style={{ fontSize: "12px", color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px", fontWeight: "700" }}>{t.vehicle}</div>
-                            <div style={{ fontWeight: "700", color: "#171717" }}>{vehicle?.vehicle_type || "TBD"}</div>
+                            <div style={{ fontSize: "12px", color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px", fontWeight: "700" }}>Seat No.</div>
+                            <div style={{ fontWeight: "800", color: "var(--primary)" }}>{seat_number || "Any"}</div>
                         </div>
                         <div style={{ gridColumn: "span 2", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", backgroundColor: "#f8fafc", padding: "12px", border: "1px solid #e2e8f0" }}>
                             <div style={{ gridColumn: "span 2", fontSize: "14px", fontWeight: "700", borderBottom: "1px solid #cbd5e1", paddingBottom: "8px", marginBottom: "4px" }}>

@@ -43,6 +43,7 @@ function BookingContent() {
     const [customerName, setCustomerName] = useState("");
     const [customerPhone, setCustomerPhone] = useState("");
     const [specialNote, setSpecialNote] = useState("");
+    const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
     
     const [submitting, setSubmitting] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
@@ -111,6 +112,7 @@ function BookingContent() {
                 passenger_count: passengerCount,
                 luggage_count: luggageCount,
                 special_note: specialNote,
+                seat_number: selectedSeats.length > 0 ? selectedSeats.join(", ") : null,
                 customer: {
                     name: customerName,
                     phone: customerPhone,
@@ -277,7 +279,10 @@ function BookingContent() {
                                         type="number" 
                                         min={1} max={15}
                                         value={passengerCount}
-                                        onChange={(e) => setPassengerCount(parseInt(e.target.value))}
+                                        onChange={(e) => {
+                                            setPassengerCount(parseInt(e.target.value));
+                                            setSelectedSeats([]); // reset seats when count changes
+                                        }}
                                         className="input-field text-sm"
                                         required
                                     />
@@ -291,6 +296,66 @@ function BookingContent() {
                                         onChange={(e) => setLuggageCount(parseInt(e.target.value))}
                                         className="input-field text-sm"
                                     />
+                                </div>
+                            </div>
+                            
+                            {/* Seat Selection Map */}
+                            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm mt-2">
+                                <label className="font-bold text-sm mb-4 block">Select Seats ({selectedSeats.length} / {passengerCount} selected)</label>
+                                <div className="flex flex-col gap-3 items-center bg-gray-50 p-6 rounded-lg border border-gray-200">
+                                    {/* Steering Wheel / Driver Area */}
+                                    <div className="w-full flex justify-end mb-4 pr-4">
+                                        <div className="w-10 h-10 border-2 border-gray-300 rounded-full flex items-center justify-center text-gray-400">
+                                            DRV
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Rows */}
+                                    {[
+                                        ['1A', '1B', '1C'],
+                                        ['2A', '2B', '2C'],
+                                        ['3A', '3B', '3C'],
+                                    ].map((row, rIndex) => (
+                                        <div key={rIndex} className="flex gap-8 justify-center w-full">
+                                            <div className="flex gap-3">
+                                                {row.slice(0, 2).map(seat => (
+                                                    <div 
+                                                        key={seat}
+                                                        onClick={() => {
+                                                            if (selectedSeats.includes(seat)) {
+                                                                setSelectedSeats(selectedSeats.filter(s => s !== seat));
+                                                            } else if (selectedSeats.length < passengerCount) {
+                                                                setSelectedSeats([...selectedSeats, seat]);
+                                                            }
+                                                        }}
+                                                        className={`w-12 h-12 rounded-t-lg rounded-b-sm border-2 flex items-center justify-center font-bold text-sm cursor-pointer transition-colors shadow-sm
+                                                            ${selectedSeats.includes(seat) ? 'bg-primary border-primary text-white shadow-primary/30' : 'bg-white border-gray-300 text-gray-600 hover:border-primary/50'}
+                                                        `}
+                                                    >
+                                                        {seat}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            {/* Aisle */}
+                                            <div className="w-4"></div>
+                                            {/* Single Window Seat */}
+                                            <div 
+                                                onClick={() => {
+                                                    const seat = row[2];
+                                                    if (selectedSeats.includes(seat)) {
+                                                        setSelectedSeats(selectedSeats.filter(s => s !== seat));
+                                                    } else if (selectedSeats.length < passengerCount) {
+                                                        setSelectedSeats([...selectedSeats, seat]);
+                                                    }
+                                                }}
+                                                className={`w-12 h-12 rounded-t-lg rounded-b-sm border-2 flex items-center justify-center font-bold text-sm cursor-pointer transition-colors shadow-sm
+                                                    ${selectedSeats.includes(row[2]) ? 'bg-primary border-primary text-white shadow-primary/30' : 'bg-white border-gray-300 text-gray-600 hover:border-primary/50'}
+                                                `}
+                                            >
+                                                {row[2]}
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
 

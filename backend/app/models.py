@@ -100,6 +100,7 @@ class Reservation(Base):
     passenger_count = Column(Integer, nullable=False)
     luggage_count = Column(Integer, default=0)
     special_note = Column(Text, nullable=True)
+    seat_number = Column(String(50), nullable=True)
     
     customer_id = Column(Integer, ForeignKey("customers.id"))
     status = Column(Enum(BookingStatus), nullable=False, default=BookingStatus.pending)

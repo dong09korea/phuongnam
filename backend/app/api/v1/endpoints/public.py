@@ -78,6 +78,7 @@ def create_booking(booking_in: schemas.ReservationCreate, db: Session = Depends(
         passenger_count=booking_in.passenger_count,
         luggage_count=booking_in.luggage_count,
         special_note=booking_in.special_note,
+        seat_number=booking_in.seat_number,
         customer_id=customer.id,
         status=models.BookingStatus.pending,
         total_amount=total_amount,

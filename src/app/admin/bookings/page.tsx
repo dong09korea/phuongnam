@@ -23,6 +23,7 @@ interface Reservation {
     depart_date: string;
     depart_time: string;
     passenger_count: number;
+    seat_number: string | null;
     status: string;
     payment_status: string;
     total_amount: number;
@@ -230,7 +231,8 @@ export default function BookingDashboard() {
                                                         <th className="px-4 py-3">Code</th>
                                                         <th className="px-4 py-3">Passenger</th>
                                                         <th className="px-4 py-3">Contact</th>
-                                                        <th className="px-4 py-3">Pax</th>
+                                                        <th className="px-4 py-3 text-center">Seats</th>
+                                                        <th className="px-4 py-3 text-center">Pax</th>
                                                         <th className="px-4 py-3">Payment</th>
                                                         <th className="px-4 py-3">Status</th>
                                                         <th className="px-4 py-3 text-right">Actions</th>
@@ -248,7 +250,10 @@ export default function BookingDashboard() {
                                                             <td className="px-4 py-3 text-gray-600 font-mono">
                                                                 {booking.customer?.phone || "-"}
                                                             </td>
-                                                            <td className="px-4 py-3 font-bold text-gray-900">
+                                                            <td className="px-4 py-3 text-center font-bold text-primary">
+                                                                {booking.seat_number || "Any"}
+                                                            </td>
+                                                            <td className="px-4 py-3 text-center font-bold text-gray-900">
                                                                 {booking.passenger_count}
                                                             </td>
                                                             <td className="px-4 py-3">
