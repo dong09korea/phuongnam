@@ -178,9 +178,20 @@ export default function LiveTripDisplay() {
                     <div className="relative z-10 w-full max-w-4xl mx-auto mb-10 pointer-events-none">
                         <div className="bg-black/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl mx-10">
                             
-                            <div className="flex justify-between items-end mb-6 text-xl">
+                            <div className="flex justify-between items-center mb-6 text-xl">
                                 <div className="font-bold flex items-center gap-3"><MapPin className="text-[#FF5722]" /> {tripData.from_location}</div>
-                                <div className="font-bold flex items-center gap-3">{tripData.to_location} <MapPin className="text-gray-400" /></div>
+                                <div className="flex items-center gap-6">
+                                    <div className="font-bold flex items-center gap-3">{tripData.to_location} <MapPin className="text-gray-400" /></div>
+                                    {/* Moved Wi-Fi Widget */}
+                                    <div className="flex items-center gap-3 bg-white/5 px-4 py-2.5 rounded-xl border border-white/10">
+                                        <Wifi className="text-[#FF5722]" size={20} />
+                                        <div className="flex flex-col text-left">
+                                            <div className="text-xs text-gray-400 uppercase tracking-widest">{t.freeWifi || 'WI-FI MIỄN PHÍ'}</div>
+                                            <div className="text-sm font-bold leading-tight">PhuongNam_VIP</div>
+                                            <div className="text-xs text-gray-300 leading-tight">pw: 12345678</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="relative h-6 bg-white/10 rounded-full overflow-visible my-8">
@@ -248,17 +259,9 @@ export default function LiveTripDisplay() {
                                 {tripData.latest_location.speed ? `${Math.round(tripData.latest_location.speed)} km/h` : '--'}
                             </div>
                         </div>
-                        <div className="bg-white/5 rounded-2xl p-6 border border-white/5 col-span-2 flex flex-col justify-center transition-opacity duration-500">
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className="bg-[#FF5722]/20 p-3 rounded-full text-[#FF5722]">
-                                    <Wifi size={32} />
-                                </div>
-                                <div>
-                                    <div className="text-gray-400 uppercase tracking-wider text-sm">{t.freeWifi}</div>
-                                    <div className="text-2xl font-bold">Network: PhuongNam_VIP</div>
-                                    <div className="text-xl text-gray-300">Password: 12345678</div>
-                                </div>
-                            </div>
+                        <div className="bg-white/5 rounded-2xl p-6 border-dashed border-2 border-white/10 col-span-2 flex flex-col justify-center items-center transition-opacity duration-500 opacity-50 min-h-[140px]">
+                            {/* Empty Space for Future Ad Integration */}
+                            <span className="text-gray-400 font-bold uppercase tracking-widest">Advertisement Space</span>
                         </div>
                     </div>
 
