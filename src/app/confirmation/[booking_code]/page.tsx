@@ -129,7 +129,7 @@ export default function ConfirmationPage({ params }: { params: Promise<{ booking
                     borderBottom: "2px solid #171717", marginBottom: "-24px", paddingBottom: "48px"
                 }}>
                     <h1 style={{ fontSize: "24px", fontWeight: "800", letterSpacing: "-0.5px", textTransform: "uppercase" }}>
-                        {isCancelled ? "CANCELLED" : "Booking Confirmed"}
+                        {isCancelled ? t.cancelled : t.bookingConfirmed}
                     </h1>
                     <p style={{ fontSize: "14px", opacity: 0.9, letterSpacing: "2px", marginTop: "4px", textTransform: "uppercase" }}>{t.boardingPass}</p>
                 </div>
@@ -148,7 +148,7 @@ export default function ConfirmationPage({ params }: { params: Promise<{ booking
                             </div>
 
                             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", margin: "0 12px" }}>
-                                <div style={{ fontSize: "12px", fontWeight: "700", color: "#6b7280", marginBottom: "4px" }}>{trip_type === "round_trip" ? "Round Trip" : "One Way"}</div>
+                                <div style={{ fontSize: "12px", fontWeight: "700", color: "#6b7280", marginBottom: "4px" }}>{trip_type === "round_trip" ? t.roundTrip : t.oneWay}</div>
                                 <div style={{ width: "100%", height: "1px", background: "#e5e5e5", position: "relative" }}>
                                     <div style={{ position: "absolute", top: "-6px", left: "50%", transform: "translateX(-50%)", background: "white", padding: "0 4px", color: "#171717" }}>
                                         <Bus size={14} />
@@ -197,33 +197,33 @@ export default function ConfirmationPage({ params }: { params: Promise<{ booking
                             <div style={{ fontWeight: "700", color: "#171717" }}>{depart_date}</div>
                         </div>
                         <div style={{ textAlign: "right" }}>
-                            <div style={{ fontSize: "12px", color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px", fontWeight: "700" }}>Seat No.</div>
-                            <div style={{ fontWeight: "800", color: "var(--primary)" }}>{seat_number || "Any"}</div>
+                            <div style={{ fontSize: "12px", color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px", fontWeight: "700" }}>{t.seatNo}</div>
+                            <div style={{ fontWeight: "800", color: "var(--primary)" }}>{seat_number || t.anySeat}</div>
                         </div>
                         <div style={{ gridColumn: "span 2", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", backgroundColor: "#f8fafc", padding: "12px", border: "1px solid #e2e8f0" }}>
                             <div style={{ gridColumn: "span 2", fontSize: "14px", fontWeight: "700", borderBottom: "1px solid #cbd5e1", paddingBottom: "8px", marginBottom: "4px" }}>
-                                Payment Details
+                                {t.paymentDetails}
                             </div>
                             
                             <div>
-                                <div style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", fontWeight: "600" }}>Total Amount</div>
+                                <div style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", fontWeight: "600" }}>{t.totalAmount}</div>
                                 <div style={{ fontWeight: "800", color: "#0f172a", fontSize: "18px" }}>{total_amount?.toLocaleString() || "0"} ₫</div>
                             </div>
                             
                             <div style={{ textAlign: "right" }}>
-                                <div style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", fontWeight: "600" }}>Status</div>
+                                <div style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", fontWeight: "600" }}>{t.statusLower}</div>
                                 <div style={{ 
                                     fontWeight: "800", fontSize: "16px",
                                     color: payment_status === "paid" ? "#166534" : payment_status === "partially_paid" ? "#854d0e" : "#991b1b"
                                 }}>
-                                    {payment_status?.toUpperCase().replace("_", " ") || "UNPAID"}
+                                    {payment_status === "unpaid" ? t.unpaid : (payment_status?.toUpperCase().replace("_", " ") || t.unpaid)}
                                 </div>
                             </div>
                             
                             {(payment_status === "unpaid" || payment_status === "partially_paid") && (
                                 <div style={{ gridColumn: "span 2", marginTop: "8px", paddingTop: "12px", borderTop: "1px dashed #cbd5e1", display: "flex", gap: "8px", flexDirection: "column" }}>
                                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                        <div style={{ fontSize: "13px", fontWeight: "600" }}>Remaining Balance:</div>
+                                        <div style={{ fontSize: "13px", fontWeight: "600" }}>{t.remainingBalance}:</div>
                                         <div style={{ fontSize: "16px", fontWeight: "800", color: "#b91c1c" }}>{balance_amount?.toLocaleString() || total_amount?.toLocaleString() || "0"} ₫</div>
                                     </div>
                                     
@@ -231,11 +231,11 @@ export default function ConfirmationPage({ params }: { params: Promise<{ booking
                                         <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
                                             {payment_status === "unpaid" && (
                                                 <button onClick={() => handlePayment("deposit")} disabled={paymentLoading} className="btn" style={{ flex: 1, backgroundColor: "white", color: "#0f172a", border: "1px solid #cbd5e1", fontSize: "12px", padding: "8px" }}>
-                                                    Pay Deposit (30%)
+                                                    {t.payDeposit30}
                                                 </button>
                                             )}
                                             <button onClick={() => handlePayment("full")} disabled={paymentLoading} className="btn btn-primary" style={{ flex: payment_status === "unpaid" ? 1 : 2, fontSize: "12px", padding: "8px" }}>
-                                                {paymentLoading ? <Loader2 size={14} className="animate-spin text-white mx-auto" /> : "Pay Balance Online"}
+                                                {paymentLoading ? <Loader2 size={14} className="animate-spin text-white mx-auto" /> : t.payBalanceOnline}
                                             </button>
                                         </div>
                                     )}
@@ -247,7 +247,7 @@ export default function ConfirmationPage({ params }: { params: Promise<{ booking
                     {/* QR Code Section */}
                     {isCancelled ? (
                         <div style={{ textAlign: "center", padding: "20px", color: "#991b1b", fontWeight: "bold", border: "2px dashed #991b1b" }}>
-                            TICKET VOID
+                            {t.ticketVoid}
                         </div>
                     ) : (
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>

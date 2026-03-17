@@ -113,6 +113,19 @@ export const translations = {
         gate: "Gate",
         showCode: "Show this code to the driver upon boarding.",
         save: "Save",
+        
+        // Confirmation/Receipt
+        bookingConfirmed: "Booking Confirmed",
+        cancelled: "CANCELLED",
+        seatNo: "Seat No.",
+        anySeat: "Any",
+        paymentDetails: "Payment Details",
+        statusLower: "Status",
+        unpaid: "UNPAID",
+        remainingBalance: "Remaining Balance",
+        payDeposit30: "Pay Deposit (30%)",
+        payBalanceOnline: "Pay Balance Online",
+        ticketVoid: "TICKET VOID",
     },
     vi: {
         // Navigation
@@ -226,6 +239,19 @@ export const translations = {
         gate: "Cổng",
         showCode: "Vui lòng xuất trình mã này cho tài xế khi lên xe.",
         save: "Lưu vé",
+
+        // Confirmation/Receipt
+        bookingConfirmed: "ĐẶT VÉ THÀNH CÔNG",
+        cancelled: "ĐÃ HỦY",
+        seatNo: "SỐ GHẾ",
+        anySeat: "Bất kỳ",
+        paymentDetails: "Chi tiết thanh toán",
+        statusLower: "Trạng thái",
+        unpaid: "CHƯA THANH TOÁN",
+        remainingBalance: "Số tiền còn lại",
+        payDeposit30: "Đặt cọc (30%)",
+        payBalanceOnline: "Thanh toán Online",
+        ticketVoid: "VÉ ĐÃ HỦY",
     },
     ko: {
         // Navigation
@@ -329,5 +355,18 @@ export const translations = {
         cancelBooking: "예약 취소",
         trafficDisclaimer: "교통 상황에 따라 출발, 도착 시간이 달라질 수 있습니다.",
         passengerName: "탑승자 명",
+        
+        // Confirmation/Receipt
+        bookingConfirmed: "예약 확정됨",
+        cancelled: "취소됨",
+        seatNo: "좌석 번호",
+        anySeat: "미지정",
+        paymentDetails: "결제 상세내역",
+        statusLower: "상태",
+        unpaid: "미결제",
+        remainingBalance: "잔여 결제 금액",
+        payDeposit30: "계약금 결제 (30%)",
+        payBalanceOnline: "온라인 결제하기",
+        ticketVoid: "무효 처리된 티켓",
     }
 };
