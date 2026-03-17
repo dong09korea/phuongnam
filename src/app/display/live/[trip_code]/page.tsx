@@ -118,9 +118,18 @@ export default function LiveTripDisplay() {
                         Phuong Nam <span className="text-[#FF5722]">TRANSPORT</span>
                     </div>
                     <div className="h-10 w-[2px] bg-white/20"></div>
-                    <div>
+                    <div className="flex flex-col">
                         <div className="text-sm text-gray-400 font-medium tracking-widest uppercase transition-opacity duration-500">{t.route}</div>
                         <div className="text-2xl font-bold">{tripData.route_name}</div>
+                    </div>
+                    {/* Wi-Fi Widget in Header */}
+                    <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-xl border border-white/10 ml-4">
+                        <Wifi className="text-[#FF5722]" size={20} />
+                        <div className="flex flex-col text-left">
+                            <div className="text-[10px] text-gray-400 uppercase tracking-widest">{t.freeWifi || 'WI-FI MIỄN PHÍ'}</div>
+                            <div className="text-sm font-bold leading-none">PhuongNam_VIP</div>
+                            <div className="text-xs text-gray-300 leading-tight mt-0.5">pw: 12345678</div>
+                        </div>
                     </div>
                 </div>
 
@@ -178,20 +187,9 @@ export default function LiveTripDisplay() {
                     <div className="relative z-10 w-full max-w-4xl mx-auto mb-10 pointer-events-none">
                         <div className="bg-black/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl mx-10">
                             
-                            <div className="flex justify-between items-center mb-6 text-xl">
+                            <div className="flex justify-between items-end mb-6 text-xl">
                                 <div className="font-bold flex items-center gap-3"><MapPin className="text-[#FF5722]" /> {tripData.from_location}</div>
-                                <div className="flex items-center gap-6">
-                                    <div className="font-bold flex items-center gap-3">{tripData.to_location} <MapPin className="text-gray-400" /></div>
-                                    {/* Moved Wi-Fi Widget */}
-                                    <div className="flex items-center gap-3 bg-white/5 px-4 py-2.5 rounded-xl border border-white/10">
-                                        <Wifi className="text-[#FF5722]" size={20} />
-                                        <div className="flex flex-col text-left">
-                                            <div className="text-xs text-gray-400 uppercase tracking-widest">{t.freeWifi || 'WI-FI MIỄN PHÍ'}</div>
-                                            <div className="text-sm font-bold leading-tight">PhuongNam_VIP</div>
-                                            <div className="text-xs text-gray-300 leading-tight">pw: 12345678</div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <div className="font-bold flex items-center gap-3">{tripData.to_location} <MapPin className="text-gray-400" /></div>
                             </div>
 
                             <div className="relative h-6 bg-white/10 rounded-full overflow-visible my-8">
