@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { CheckCircle, Download, Home, Loader2, Bus, AlertCircle } from "lucide-react";
+import html2canvas from "html2canvas";
 import { useLanguage } from "@/context/LanguageContext";
 import { getBooking, initializePayment } from "@/lib/api";
 
@@ -10,6 +11,7 @@ export default function ConfirmationPage({ params }: { params: Promise<{ booking
     const { t } = useLanguage();
     const resolvedParams = React.use(params);
     const bookingCode = resolvedParams.booking_code;
+    const ticketRef = useRef<HTMLDivElement>(null);
 
     const [booking, setBooking] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -50,6 +52,25 @@ export default function ConfirmationPage({ params }: { params: Promise<{ booking
             alert(error.message || "Target payment gateway error");
         } finally {
             setPaymentLoading(false);
+        }
+    };
+
+    const handleDownloadTicket = async () => {
+        if (!ticketRef.current) return;
+        try {
+            const canvas = await html2canvas(ticketRef.current, {
+                scale: 2, // Higher resolution
+                useCORS: true, 
+                backgroundColor: "#f9fafb"
+            });
+            const image = canvas.toDataURL("image/png");
+            const link = document.createElement("a");
+            link.href = image;
+            link.download = `PhuongNam_Ticket_${bookingCode}.png`;
+            link.click();
+        } catch (error) {
+            console.error("Failed to download ticket image:", error);
+            alert("Could not save ticket. Please take a screenshot instead.");
         }
     };
 
@@ -95,7 +116,8 @@ export default function ConfirmationPage({ params }: { params: Promise<{ booking
             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
             minHeight: "100vh", padding: "20px", background: "#f9fafb"
         }}>
-            <div style={{
+            {/* The element we want to capture as an image */}
+            <div ref={ticketRef} style={{
                 width: "100%", maxWidth: "380px", backgroundColor: "white",
                 boxShadow: "10px 10px 0px 0px rgba(0, 0, 0, 0.1)", border: "2px solid #171717",
                 overflow: "hidden", position: "relative", opacity: isCancelled ? 0.7 : 1
@@ -254,8 +276,8 @@ export default function ConfirmationPage({ params }: { params: Promise<{ booking
                     }}>
                         <Home size={18} /> {t.home}
                     </Link>
-                    <button className="btn btn-primary" onClick={() => window.print()} style={{ flex: 1, display: "flex", justifyContent: "center", gap: "8px", boxShadow: "4px 4px 0px 0px rgba(0,0,0,0.9)" }}>
-                        <Download size={18} /> {t.save}
+                    <button className="btn btn-primary" onClick={handleDownloadTicket} style={{ flex: 1, display: "flex", justifyContent: "center", gap: "8px", boxShadow: "4px 4px 0px 0px rgba(0,0,0,0.9)" }}>
+                        <Download size={18} /> LƯU VÉ
                     </button>
                 </div>
             </div>
