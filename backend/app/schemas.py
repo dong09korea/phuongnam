@@ -140,6 +140,7 @@ class ReservationOut(ReservationBase):
     customer: Optional[CustomerOut] = None
     assigned_vehicle: Optional[VehicleOut] = None
     assigned_driver: Optional[DriverOut] = None
+    payment_transactions: List['PaymentTransactionOut'] = []
 
 # --- Payments ---
 class PaymentTransactionBase(ConfiguredBaseModel):
@@ -159,6 +160,8 @@ class PaymentTransactionOut(PaymentTransactionBase):
     payment_url: Optional[str] = None
     paid_at: Optional[datetime] = None
     created_at: datetime
+
+ReservationOut.update_forward_refs()
 
 # --- Admin Auth ---
 class AdminLogin(BaseModel):

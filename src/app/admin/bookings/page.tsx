@@ -26,6 +26,7 @@ interface Reservation {
     seat_number: string | null;
     status: string;
     payment_status: string;
+    payment_transactions?: any[];
     total_amount: number;
     customer: Customer;
     created_at: string;
@@ -257,14 +258,27 @@ export default function BookingDashboard() {
                                                                 {booking.passenger_count}
                                                             </td>
                                                             <td className="px-4 py-3">
-                                                                <span className={`
-                                                                    inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase border
-                                                                    ${booking.payment_status === 'paid' ? 'bg-green-50 text-green-700 border-green-200' :
-                                                                        booking.payment_status === 'partially_paid' ? 'bg-orange-50 text-orange-700 border-orange-200' :
-                                                                            'bg-red-50 text-red-700 border-red-200'}
-                                                                `}>
-                                                                    {booking.payment_status?.replace('_', ' ') || "UNPAID"}
-                                                                </span>
+                                                                <div className="flex flex-col gap-1 items-start">
+                                                                    <span className={`
+                                                                        inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase border
+                                                                        ${booking.payment_status === 'paid' ? 'bg-green-50 text-green-700 border-green-200' :
+                                                                            booking.payment_status === 'partially_paid' ? 'bg-orange-50 text-orange-700 border-orange-200' :
+                                                                                'bg-red-50 text-red-700 border-red-200'}
+                                                                    `}>
+                                                                        {booking.payment_status?.replace('_', ' ') || "UNPAID"}
+                                                                    </span>
+                                                                    {booking.payment_transactions && booking.payment_transactions.length > 0 && (
+                                                                        booking.payment_transactions[booking.payment_transactions.length - 1].payment_method === 'cash' ? (
+                                                                            <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded border border-gray-200 uppercase">
+                                                                                CASH (Pay on Board)
+                                                                            </span>
+                                                                        ) : (
+                                                                            <span className="text-[10px] font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 uppercase">
+                                                                                {booking.payment_transactions[booking.payment_transactions.length - 1].payment_method}
+                                                                            </span>
+                                                                        )
+                                                                    )}
+                                                                </div>
                                                             </td>
                                                             <td className="px-4 py-3">
                                                                 <span className={`
