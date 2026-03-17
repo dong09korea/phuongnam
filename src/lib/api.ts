@@ -22,6 +22,10 @@ export async function fetchWithConfig(endpoint: string, options: RequestInit = {
   });
 
   if (!response.ok) {
+    if (response.status === 401 && typeof window !== "undefined") {
+      localStorage.removeItem("admin_token");
+      window.location.href = "/admin/login";
+    }
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
   }
