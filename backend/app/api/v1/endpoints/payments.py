@@ -47,8 +47,8 @@ def initialize_payment(
     
     # Future Strategy Pattern: If this was VNPAY, we would call the VNPAY adapter here
     if payment_method not in ["bank_transfer", "cash"]:
-        # Mock payment URL for online gateways
-        transaction.payment_url = f"https://mock-gateway.com/checkout?txn={transaction_code}"
+        # Mock payment URL redirecting to our local Next.js mock page
+        transaction.payment_url = f"http://localhost:3005/payment-mock?txn={transaction_code}&amount={amount_to_pay}&booking={booking_code}"
     
     db.add(transaction)
     db.commit()
