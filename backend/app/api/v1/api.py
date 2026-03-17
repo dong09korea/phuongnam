@@ -2,9 +2,10 @@ from fastapi import APIRouter, APIRouter
 
 api_router = APIRouter()
 
-from .endpoints import public, admin, live, payments
+from .endpoints import public, admin, live, payments, driver
 
 api_router.include_router(public.router, prefix="/public", tags=["Public"])
 api_router.include_router(admin.router, prefix="/admin", tags=["Admin"])
 api_router.include_router(live.router, prefix="/live", tags=["In-Vehicle Display"])
 api_router.include_router(payments.router, prefix="/payments", tags=["Payments"])
+api_router.include_router(driver.router, prefix="/driver", tags=["driver app"])
