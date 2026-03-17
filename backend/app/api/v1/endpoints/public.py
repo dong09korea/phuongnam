@@ -60,6 +60,11 @@ def create_booking(booking_in: schemas.ReservationCreate, db: Session = Depends(
         if not existing:
             break
             
+    # Basic MVP Pricing Logic (e.g. 500k VND per passenger)
+    # In a real app, this would query the DB for exact route/vehicle prices
+    base_price_per_pax = 500000 
+    total_amount = base_price_per_pax * booking_in.passenger_count
+    
     # 3. Create reservation
     reservation = models.Reservation(
         booking_code=code,
@@ -74,7 +79,9 @@ def create_booking(booking_in: schemas.ReservationCreate, db: Session = Depends(
         luggage_count=booking_in.luggage_count,
         special_note=booking_in.special_note,
         customer_id=customer.id,
-        status=models.BookingStatus.pending
+        status=models.BookingStatus.pending,
+        total_amount=total_amount,
+        deposit_amount=total_amount * 0.3 # 30% default deposit
     )
     db.add(reservation)
     db.commit()
