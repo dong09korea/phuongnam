@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { getReservations } from "@/lib/api";
+import { useLanguage } from "@/context/LanguageContext";
 import { User, Phone, DollarSign, Calendar } from "lucide-react";
 
 interface Customer {
@@ -21,59 +22,64 @@ export default function AdminCustomersPage() {
     }, []);
 
     const fetchCustomers = async () => {
-        // Since we don't have a dedicated public profiles table sync set up yet,
-        // we will aggregate customers from the 'bookings' table.
-        const { data: bookings } = await supabase
-            .from('bookings')
-            .select('*')
-            .order('created_at', { ascending: false });
+        try {
+            // Aggregate customers from the backend reservations API
+            const reservations = await getReservations();
+            
+            if (reservations && Array.isArray(reservations)) {
+                const customerMap = new Map<string, Customer>();
 
-        if (bookings) {
-            const customerMap = new Map<string, Customer>();
+                // Sort reservations desc to get most recent last_booking easily
+                reservations.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-            bookings.forEach(booking => {
-                const key = booking.passenger_phone || booking.passenger_name; // Use phone as unique key if possible
+                reservations.forEach((booking: any) => {
+                    const phone = booking.customer?.phone || booking.customer_id?.toString() || "Unknown";
+                    const name = booking.customer?.name || "Unknown";
+                    const key = phone; 
 
-                if (!customerMap.has(key)) {
-                    customerMap.set(key, {
-                        passenger_name: booking.passenger_name,
-                        passenger_phone: booking.passenger_phone,
-                        total_spent: 0,
-                        last_booking: booking.created_at,
-                        booking_count: 0
-                    });
-                }
+                    if (!customerMap.has(key)) {
+                        customerMap.set(key, {
+                            passenger_name: name,
+                            passenger_phone: phone,
+                            total_spent: 0,
+                            last_booking: booking.created_at,
+                            booking_count: 0
+                        });
+                    }
 
-                const customer = customerMap.get(key)!;
-                customer.total_spent += booking.total_amount || 0;
-                customer.booking_count += 1;
-                // keep earliest date? No, we sorted by desc, so first one encountered is latest.
-                // Wait, if we iterate list sorted desc, the first one is the latest.
-                // So we just set it once.
-            });
+                    const customer = customerMap.get(key)!;
+                    customer.total_spent += booking.total_amount || 0;
+                    customer.booking_count += 1;
+                });
 
-            setCustomers(Array.from(customerMap.values()));
+                setCustomers(Array.from(customerMap.values()));
+            }
+        } catch (error) {
+            console.error("Failed to load customers:", error);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
-    if (loading) return <div>Loading customers...</div>;
+    const { t } = useLanguage();
+
+    if (loading) return <div>{t.loadingBooking || "Loading customers..."}</div>;
 
     return (
         <div>
             <h1 style={{ fontSize: "28px", fontWeight: "800", color: "#171717", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "24px" }}>
-                Customer Database
+                {t.adminCustomers || "Customer Database"}
             </h1>
 
             <div className="card" style={{ padding: 0, border: "2px solid #171717", borderRadius: "0px" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                     <thead style={{ backgroundColor: "#171717", color: "white" }}>
                         <tr>
-                            <th style={{ padding: "16px", textAlign: "left" }}>Name</th>
-                            <th style={{ padding: "16px", textAlign: "left" }}>Phone</th>
-                            <th style={{ padding: "16px", textAlign: "left" }}>Bookings</th>
-                            <th style={{ padding: "16px", textAlign: "left" }}>Total Spent</th>
-                            <th style={{ padding: "16px", textAlign: "right" }}>Last Active</th>
+                            <th style={{ padding: "16px", textAlign: "left" }}>{t.customerName || "Name"}</th>
+                            <th style={{ padding: "16px", textAlign: "left" }}>{t.customerPhone || "Phone"}</th>
+                            <th style={{ padding: "16px", textAlign: "left" }}>{t.customerBookings || "Bookings"}</th>
+                            <th style={{ padding: "16px", textAlign: "left" }}>{t.customerSpent || "Total Spent"}</th>
+                            <th style={{ padding: "16px", textAlign: "right" }}>{t.customerActive || "Last Active"}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -90,7 +96,7 @@ export default function AdminCustomersPage() {
                                 <td style={{ padding: "16px", fontFamily: "monospace" }}>{c.passenger_phone}</td>
                                 <td style={{ padding: "16px" }}>
                                     <span style={{ backgroundColor: "#eff6ff", color: "#1d4ed8", padding: "4px 12px", borderRadius: "12px", fontSize: "12px", fontWeight: "700" }}>
-                                        {c.booking_count} trips
+                                        {c.booking_count} {t.trips || "trips"}
                                     </span>
                                 </td>
                                 <td style={{ padding: "16px", fontWeight: "700", color: "#059669" }}>
@@ -103,7 +109,7 @@ export default function AdminCustomersPage() {
                         ))}
                         {customers.length === 0 && (
                             <tr>
-                                <td colSpan={5} style={{ padding: "32px", textAlign: "center", color: "#9ca3af" }}>No customers found.</td>
+                                <td colSpan={5} style={{ padding: "32px", textAlign: "center", color: "#9ca3af" }}>{t.noCustomersFound || "No customers found."}</td>
                             </tr>
                         )}
                     </tbody>

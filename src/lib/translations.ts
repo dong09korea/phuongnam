@@ -130,6 +130,25 @@ export const translations = {
         payOnBoardAction: "Pay on Board",
         payOnBoardAlert: "Request to pay on board noted. Please pay the driver upon boarding.",
         ticketVoid: "TICKET VOID",
+
+        // Admin
+        adminDashboard: "Dashboard",
+        adminBookings: "Bookings",
+        adminSchedule: "Schedule (Dispatch)",
+        adminFleet: "Fleet Tracking",
+        adminVehicles: "Vehicles",
+        adminDrivers: "Drivers",
+        adminCustomers: "Customers",
+        adminSettings: "Settings",
+        adminExit: "Exit Admin",
+        dailyOperations: "Daily Operations",
+        customerName: "Name",
+        customerPhone: "Phone",
+        customerBookings: "Bookings",
+        customerSpent: "Total Spent",
+        customerActive: "Last Active",
+        noCustomersFound: "No customers found.",
+        trips: "trips",
     },
     vi: {
         // Navigation
@@ -260,6 +279,25 @@ export const translations = {
         payOnBoardAction: "Thanh toán trên xe",
         payOnBoardAlert: "Yêu cầu thanh toán trên xe đã được ghi nhận. Vui lòng thanh toán cho tài xế khi lên xe.",
         ticketVoid: "VÉ ĐÃ HỦY",
+
+        // Admin
+        adminDashboard: "Bảng điều khiển",
+        adminBookings: "Quản lý vé",
+        adminSchedule: "Lịch khởi hành",
+        adminFleet: "Theo dõi xe",
+        adminVehicles: "Danh sách xe",
+        adminDrivers: "Tài xế",
+        adminCustomers: "Khách hàng",
+        adminSettings: "Cài đặt",
+        adminExit: "Thoát Admin",
+        dailyOperations: "Điều hành trong ngày",
+        customerName: "Tên",
+        customerPhone: "Điện thoại",
+        customerBookings: "Số chuyến",
+        customerSpent: "Tổng chi tiêu",
+        customerActive: "Hoạt động cuối",
+        noCustomersFound: "Không tìm thấy khách hàng nào.",
+        trips: "chuyến",
     },
     ko: {
         // Navigation
@@ -380,5 +418,24 @@ export const translations = {
         payOnBoardAction: "현장결제 (기사님께)",
         payOnBoardAlert: "현장결제가 접수되었습니다. 탑승 시 기사님께 직접 결제해주세요.",
         ticketVoid: "무효 처리된 티켓",
+
+        // Admin
+        adminDashboard: "대시보드",
+        adminBookings: "예약/발권 관리",
+        adminSchedule: "운행 일정 (배차)",
+        adminFleet: "차량 위치 추적",
+        adminVehicles: "차량 관리",
+        adminDrivers: "기사 관리",
+        adminCustomers: "고객 데이터베이스",
+        adminSettings: "환경설정",
+        adminExit: "관리자 로그아웃",
+        dailyOperations: "일일 운행 현황",
+        customerName: "이름",
+        customerPhone: "연락처",
+        customerBookings: "예약 건수",
+        customerSpent: "총 결제액",
+        customerActive: "최근 예약일",
+        noCustomersFound: "등록된 고객 정보가 없습니다.",
+        trips: "회",
     }
 };

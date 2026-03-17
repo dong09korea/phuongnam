@@ -4,21 +4,23 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { adminLogout } from "@/lib/api";
+import { useLanguage } from "@/context/LanguageContext";
 import { LayoutDashboard, CalendarDays, Users, Settings, LogOut, Bus, UserSquare, Map, CalendarClock } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
+    const { t, language, setLanguage } = useLanguage();
 
     const menuItems = [
-        { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
-        { icon: CalendarDays, label: "Bookings", href: "/admin/bookings" },
-        { icon: CalendarClock, label: "Schedule (Dispatch)", href: "/admin/schedule" },
-        { icon: Map, label: "Fleet Tracking", href: "/admin/fleet" },
-        { icon: Bus, label: "Vehicles", href: "/admin/vehicles" },
-        { icon: UserSquare, label: "Drivers", href: "/admin/drivers" },
-        { icon: Users, label: "Customers", href: "/admin/customers" },
-        { icon: Settings, label: "Settings", href: "/admin/settings" },
+        { icon: LayoutDashboard, label: t.adminDashboard, href: "/admin" },
+        { icon: CalendarDays, label: t.adminBookings, href: "/admin/bookings" },
+        { icon: CalendarClock, label: t.adminSchedule, href: "/admin/schedule" },
+        { icon: Map, label: t.adminFleet, href: "/admin/fleet" },
+        { icon: Bus, label: t.adminVehicles, href: "/admin/vehicles" },
+        { icon: UserSquare, label: t.adminDrivers, href: "/admin/drivers" },
+        { icon: Users, label: t.adminCustomers, href: "/admin/customers" },
+        { icon: Settings, label: t.adminSettings, href: "/admin/settings" },
     ];
 
     // Protected Route Check
@@ -73,12 +75,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     </ul>
                 </nav>
 
+                <div className="px-6 pb-2">
+                    <div className="flex gap-2">
+                        <button onClick={() => setLanguage('ko')} className={`flex-1 py-1.5 text-xs font-bold rounded transition-colors ${language === 'ko' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>한국어</button>
+                        <button onClick={() => setLanguage('en')} className={`flex-1 py-1.5 text-xs font-bold rounded transition-colors ${language === 'en' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>ENG</button>
+                        <button onClick={() => setLanguage('vi')} className={`flex-1 py-1.5 text-xs font-bold rounded transition-colors ${language === 'vi' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>VIỆT</button>
+                    </div>
+                </div>
+
                 <div className="p-6 border-t border-slate-800">
                     <button
                         onClick={handleLogout}
                         className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors font-medium"
                     >
-                        <LogOut size={20} /> Exit Admin
+                        <LogOut size={20} /> {t.adminExit}
                     </button>
                 </div>
             </aside>

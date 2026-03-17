@@ -17,11 +17,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     // Load from localStorage on mount
     useEffect(() => {
         const saved = localStorage.getItem('language') as Language;
-        if (saved && (saved === 'vi' || saved === 'ko')) {
+        if (saved && (saved === 'vi' || saved === 'ko' || saved === 'en')) {
             setLanguage(saved);
         } else {
-            setLanguage('vi');
-            localStorage.setItem('language', 'vi');
+            setLanguage('ko'); // Set default to Korean specifically per user request if missing
+            localStorage.setItem('language', 'ko');
         }
     }, []);
 
