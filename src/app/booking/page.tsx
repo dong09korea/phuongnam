@@ -249,7 +249,7 @@ function BookingContent() {
                                                 </div>
                                                 <div className="w-8 h-[2px] bg-gray-300"></div>
                                                 <div className="text-center text-gray-500 text-sm">
-                                                    {schedule.estimated_duration} hours
+                                                    {schedule.estimated_duration} {t.hours}
                                                 </div>
                                             </div>
                                             <div className="text-right">
@@ -269,7 +269,7 @@ function BookingContent() {
                 {/* Right Column: Customer Details & Submission */}
                 <div>
                     <div className="card sticky top-6">
-                        <h2 className="font-bold text-lg mb-6 border-b pb-4">{t.passengerDetails} (Booking Form)</h2>
+                        <h2 className="font-bold text-lg mb-6 border-b pb-4">{t.passengerDetails}</h2>
                         
                         <form onSubmit={handleSubmitBooking} className="flex flex-col gap-5">
                             <div className="grid grid-cols-2 gap-4">
@@ -301,7 +301,7 @@ function BookingContent() {
                             
                             {/* Seat Selection Map */}
                             <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm mt-2">
-                                <label className="font-bold text-sm mb-4 block">Select Seats ({selectedSeats.length} / {passengerCount} selected)</label>
+                                <label className="font-bold text-sm mb-4 block">{t.selectSeats} ({selectedSeats.length} / {passengerCount} {t.selected.toLowerCase()})</label>
                                 <div className="flex flex-col gap-3 items-center bg-gray-50 p-6 rounded-lg border border-gray-200">
                                     {/* Steering Wheel / Driver Area */}
                                     <div className="w-full flex justify-end mb-4 pr-4">
@@ -415,7 +415,7 @@ function BookingContent() {
                                 disabled={submitting || !selectedSchedule}
                                 className="btn btn-primary w-full mt-2"
                             >
-                                {submitting ? "Processing..." : t.confirmBooking}
+                                {submitting ? t.processingBooking : t.confirmBooking}
                             </button>
                         </form>
                     </div>
