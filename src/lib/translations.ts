@@ -334,7 +334,7 @@ export const translations = {
         oneWay: "편도",
         roundTrip: "왕복",
         departDate: "출발일",
-        returnDate: "귀빠일",
+        returnDate: "돌아오는일",
         availableSchedules: "예약 가능 일정",
         noSchedules: "해당 노선에 운행 중인 일정이 없습니다.",
         luggageCount: "수하물 개수",
