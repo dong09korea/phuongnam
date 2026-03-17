@@ -1,26 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckCircle, Download, Home, Loader2, Bus, AlertCircle } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { getBooking, initializePayment } from "@/lib/api";
 
-export default function ConfirmationPage({ params }: { params: { booking_code: string } }) {
+export default function ConfirmationPage({ params }: { params: Promise<{ booking_code: string }> }) {
     const { t } = useLanguage();
+    const resolvedParams = React.use(params);
+    const bookingCode = resolvedParams.booking_code;
+
     const [booking, setBooking] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState("");
     const [paymentLoading, setPaymentLoading] = useState(false);
 
     useEffect(() => {
-        if (!params.booking_code) {
+        if (!bookingCode) {
             setErrorMsg("Invalid booking code");
             setLoading(false);
             return;
         }
-        fetchBooking(params.booking_code);
-    }, [params.booking_code]);
+        fetchBooking(bookingCode);
+    }, [bookingCode]);
 
     const fetchBooking = async (code: string) => {
         try {
@@ -36,7 +39,7 @@ export default function ConfirmationPage({ params }: { params: { booking_code: s
     const handlePayment = async (paymentType: "deposit" | "full") => {
         try {
             setPaymentLoading(true);
-            const txn = await initializePayment(params.booking_code, "vnpay", paymentType);
+            const txn = await initializePayment(bookingCode, "vnpay", paymentType);
             // Mock gateway redirect
             if (txn.payment_url) {
                 window.location.href = txn.payment_url;
