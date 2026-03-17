@@ -67,8 +67,8 @@ export default function FleetMonitoringPage() {
                 
                 {/* Simulated Map Area */}
                 <div className="flex-1 bg-gray-100 rounded-xl border border-gray-300 relative overflow-hidden flex flex-col items-center justify-center">
-                    {/* Placeholder Map Background img */}
-                    <div className="absolute inset-0 opacity-50 bg-[url('https://api.maptiler.com/maps/streets-v2/256/0/0/0.png')] bg-cover bg-center"></div>
+                    {/* Placeholder Grid Background instead of broken MapTiler image */}
+                    <div className="absolute inset-0 opacity-40 bg-slate-100 bg-[radial-gradient(#9ca3af_2px,transparent_2px)] [background-size:30px_30px]"></div>
                     
                     {/* Map UI Container */}
                     <div className="relative w-full h-full p-6">
