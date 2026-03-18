@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { getDashboardStats } from "@/lib/api";
+import { useLanguage } from "@/context/LanguageContext";
 import { DollarSign, Ticket, Users, TrendingUp } from "lucide-react";
 
 export default function AdminDashboard() {
+    const { t } = useLanguage();
     const [stats, setStats] = useState({
         totalRevenue: 0,
         totalBookings: 0,
@@ -35,26 +37,26 @@ export default function AdminDashboard() {
         fetchStats();
     }, []);
 
-    if (loading) return <div>Loading dashboard...</div>;
+    if (loading) return <div>{t.dashboardLoading || "Loading dashboard..."}</div>;
 
     if (errorMsg) return (
         <div>
-            <h1 className="text-2xl font-bold mb-4">Dashboard Error</h1>
+            <h1 className="text-2xl font-bold mb-4">{t.dashboardError || "Dashboard Error"}</h1>
             <div className="bg-red-50 text-red-600 p-4 rounded">{errorMsg}</div>
         </div>
     );
 
     const cards = [
-        { label: "Total Revenue", value: `${stats.totalRevenue.toLocaleString()} ₫`, icon: DollarSign, color: "#10b981", bg: "#ecfdf5" },
-        { label: "Total Bookings", value: stats.totalBookings, icon: Ticket, color: "#3b82f6", bg: "#eff6ff" },
-        { label: "Confirmed", value: stats.confirmedBookings, icon: CheckSquare, color: "#f59e0b", bg: "#fffbeb" },
-        { label: "Pending", value: stats.pendingBookings, icon: TrendingUp, color: "#6366f1", bg: "#eef2ff" },
+        { label: t.totalRevenue || "Total Revenue", value: `${stats.totalRevenue.toLocaleString()} ₫`, icon: DollarSign, color: "#10b981", bg: "#ecfdf5" },
+        { label: t.totalBookings || "Total Bookings", value: stats.totalBookings, icon: Ticket, color: "#3b82f6", bg: "#eff6ff" },
+        { label: t.dashboardConfirmed || "Confirmed", value: stats.confirmedBookings, icon: CheckSquare, color: "#f59e0b", bg: "#fffbeb" },
+        { label: t.dashboardPending || "Pending", value: stats.pendingBookings, icon: TrendingUp, color: "#6366f1", bg: "#eef2ff" },
     ];
 
     return (
         <div>
-            <h1 style={{ fontSize: "28px", fontWeight: "800", color: "#111827", marginBottom: "8px" }}>Dashboard Overview</h1>
-            <p style={{ color: "#6b7280", marginBottom: "32px" }}>Welcome back, Administrator.</p>
+            <h1 style={{ fontSize: "28px", fontWeight: "800", color: "#111827", marginBottom: "8px" }}>{t.dashboardOverview || "Dashboard Overview"}</h1>
+            <p style={{ color: "#6b7280", marginBottom: "32px" }}>{t.welcomeAdmin || "Welcome back, Administrator."}</p>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={{ marginBottom: "40px" }}>
@@ -77,9 +79,9 @@ export default function AdminDashboard() {
 
             {/* Recent Activity Placeholder */}
             <div className="card">
-                <h2 style={{ fontSize: "18px", fontWeight: "700", marginBottom: "16px", color: "#1f2937" }}>Recent Activity</h2>
+                <h2 style={{ fontSize: "18px", fontWeight: "700", marginBottom: "16px", color: "#1f2937" }}>{t.recentActivity || "Recent Activity"}</h2>
                 <div style={{ padding: "20px", textAlign: "center", color: "#9ca3af", backgroundColor: "#f9fafb", borderRadius: "8px", border: "1px dashed #e5e7eb" }}>
-                    Chart or Recent Activity List will go here.
+                    {t.recentActivityDesc || "Chart or Recent Activity List will go here."}
                 </div>
             </div>
         </div>

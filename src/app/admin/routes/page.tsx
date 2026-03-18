@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Plus, Map, Edit, Trash2, ArrowRight, XCircle } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Route {
     id: string;
@@ -14,6 +15,7 @@ interface Route {
 }
 
 export default function RouteManagementPage() {
+    const { t } = useLanguage();
     const [routes, setRoutes] = useState<Route[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -61,7 +63,7 @@ export default function RouteManagementPage() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure? deleting a route will cascade delete all trips!")) return;
+        if (!confirm(t.confirmDeleteRoute || "Are you sure? deleting a route will cascade delete all trips!")) return;
 
         const { error } = await supabase.from('routes').delete().eq('id', id);
         if (error) alert("Error deleting: " + error.message);

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getActiveFleet } from "@/lib/api";
+import { useLanguage } from "@/context/LanguageContext";
 import { Map, Navigation, Clock, AlertCircle } from "lucide-react";
 
 type ActiveFleetVehicle = {
@@ -21,6 +22,7 @@ type ActiveFleetVehicle = {
 };
 
 export default function FleetMonitoringPage() {
+    const { t } = useLanguage();
     const [fleet, setFleet] = useState<ActiveFleetVehicle[]>([]);
     const [loading, setLoading] = useState(true);
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
@@ -50,16 +52,16 @@ export default function FleetMonitoringPage() {
             <div className="flex justify-between items-end mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        <Map className="text-blue-600" /> Live Fleet Tracking
+                        <Map className="text-blue-600" /> {t.fleetTracking || "Live Fleet Tracking"}
                     </h1>
-                    <p className="text-gray-500 mt-1">Monitor all active trips and vehicle locations in real-time.</p>
+                    <p className="text-gray-500 mt-1">{t.fleetTrackingDesc || "Monitor all active trips and vehicle locations in real-time."}</p>
                 </div>
                 <div className="text-sm text-gray-500 flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-200">
                     <span className="relative flex h-3 w-3">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                     </span>
-                    Last updated: {lastUpdated.toLocaleTimeString()}
+                    {t.lastUpdated || "Last updated:"} {lastUpdated.toLocaleTimeString()}
                 </div>
             </div>
 
@@ -74,14 +76,14 @@ export default function FleetMonitoringPage() {
                     <div className="relative w-full h-full p-6">
                         {loading ? (
                             <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm">
-                                <div className="text-blue-600 font-medium">Loading fleet data...</div>
+                                <div className="text-blue-600 font-medium">{t.loadingFleet || "Loading fleet data..."}</div>
                             </div>
                         ) : fleet.length === 0 ? (
                             <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm">
                                 <div className="bg-white p-6 rounded-xl shadow-lg text-center">
                                     <AlertCircle className="mx-auto mb-2 text-yellow-500" size={32} />
-                                    <h3 className="font-bold text-gray-900">No Active Trips</h3>
-                                    <p className="text-gray-500 text-sm">There are currently no vehicles on the road.</p>
+                                    <h3 className="font-bold text-gray-900">{t.noActiveTrips || "No Active Trips"}</h3>
+                                    <p className="text-gray-500 text-sm">{t.noVehiclesOnRoad || "There are currently no vehicles on the road."}</p>
                                 </div>
                             </div>
                         ) : (
@@ -119,12 +121,12 @@ export default function FleetMonitoringPage() {
                 {/* Sidebar Details Panel */}
                 <div className="w-[380px] bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col shrink-0 overflow-y-auto">
                     <div className="p-4 border-b border-gray-100 bg-gray-50/50 font-semibold text-gray-700">
-                        {fleet.length} Active Vehicles
+                        {fleet.length} {t.activeVehiclesCount || "Active Vehicles"}
                     </div>
 
                     <div className="flex-1 p-4 space-y-4">
                         {fleet.length === 0 && !loading && (
-                            <div className="text-center text-gray-500 py-10">No fleet data available.</div>
+                            <div className="text-center text-gray-500 py-10">{t.noFleetData || "No fleet data available."}</div>
                         )}
 
                         {fleet.map(vehicle => (
@@ -149,11 +151,11 @@ export default function FleetMonitoringPage() {
                                 
                                 <div className="space-y-2 text-sm text-gray-600 mb-4 bg-white p-3 rounded border border-gray-100">
                                     <div className="flex justify-between">
-                                        <span>Driver:</span>
+                                        <span>{t.driver || "Driver"}:</span>
                                         <span className="font-medium text-gray-900">{vehicle.driver_name}</span>
                                     </div>
                                     <div className="flex justify-between items-center text-blue-600 font-medium">
-                                        <span>Current Speed:</span>
+                                        <span>{t.currentSpeed || "Current Speed"}:</span>
                                         <span>{Math.round(vehicle.latest_location.speed)} km/h</span>
                                     </div>
                                 </div>
@@ -165,7 +167,7 @@ export default function FleetMonitoringPage() {
                                     className="block w-full text-center py-2 bg-slate-900 text-white rounded hover:bg-slate-800 transition-colors text-sm font-medium"
                                     onClick={(e) => e.stopPropagation()} // Prevent card selection when clicking link
                                 >
-                                    Open Passenger Monitor View
+                                    {t.openMonitorView || "Open Passenger Monitor View"}
                                 </a>
                             </div>
                         ))}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { getAdminTrips, createAdminTrip, updateAdminTrip, deleteAdminTrip, createAdminSchedule, deleteAdminSchedule, getVehicles, getDrivers, getAdminSchedules } from "@/lib/api";
 import { Plus, Calendar, Clock, Bus, User, MapPin, ChevronLeft, ChevronRight, XCircle, Search, CalendarClock, ArrowRight, Trash2, Copy, Settings, Save, CalendarDays } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 // --- Types ---
 interface Trip {
@@ -35,6 +36,7 @@ interface Resource {
 }
 
 export default function SchedulePage() {
+    const { t } = useLanguage();
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [trips, setTrips] = useState<Trip[]>([]);
     const [loading, setLoading] = useState(true);
@@ -184,7 +186,7 @@ export default function SchedulePage() {
     };
 
     const handleDeleteTrip = async (id: string) => {
-        if (!confirm("Cancel this trip? This will affect bookings!")) return;
+        if (!confirm(t.confirmCancelTrip || "Cancel this trip? This will affect bookings!")) return;
         try {
             await deleteAdminTrip(parseInt(id));
             fetchTrips(selectedDate);
@@ -240,7 +242,12 @@ export default function SchedulePage() {
     const handleBulkGenerate = async () => {
         if (!bulkStartDate || !bulkEndDate) { alert("Please select both dates."); return; }
         if (new Date(bulkStartDate) > new Date(bulkEndDate)) { alert("Start date cannot be after end date."); return; }
-        if (!confirm(`Generate schedule from ${bulkStartDate} to ${bulkEndDate}?`)) return;
+        
+        const msg = (t.confirmGenerateBulk || "Generate schedule from {start} to {end}?")
+            .replace("{start}", bulkStartDate)
+            .replace("{end}", bulkEndDate);
+            
+        if (!confirm(msg)) return;
 
         let dbTemplates: any[] = [];
         try { dbTemplates = await getAdminSchedules(); } catch (err) {}
@@ -282,7 +289,10 @@ export default function SchedulePage() {
     };
 
     const handleAutoFill = async () => {
-        if (!confirm(`Generate daily schedule for ${selectedDate} from templates?`)) return;
+        const msg = (t.confirmGenerateTemplate || "Generate daily schedule for {date} from templates?")
+            .replace("{date}", selectedDate);
+
+        if (!confirm(msg)) return;
 
         let dbTemplates: any[] = [];
         try { dbTemplates = await getAdminSchedules(); } catch (err) {}
@@ -321,7 +331,7 @@ export default function SchedulePage() {
                 <div className="flex items-center gap-4">
                     <h1 className="text-xl font-bold flex items-center gap-2">
                         <CalendarClock size={24} className="text-primary" />
-                        Dispatch Schedule
+                        {t.dispatchSchedule || "Dispatch Schedule"}
                     </h1>
                     <div className="h-8 w-[1px] bg-gray-200"></div>
                     <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
@@ -339,31 +349,31 @@ export default function SchedulePage() {
                         onClick={handleOpenTemplates}
                         className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg flex items-center gap-2 font-medium text-sm transition-colors"
                     >
-                        <Settings size={16} /> Manage Templates & Auto-fill
+                        <Settings size={16} /> {t.manageTemplates || "Manage Templates & Auto-fill"}
                     </button>
                     <button
                         onClick={() => setShowCreateModal(true)}
                         className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium text-sm transition-colors shadow-sm"
                     >
-                        <Plus size={16} /> Add Single Trip
+                        <Plus size={16} /> {t.addSingleTrip || "Add Single Trip"}
                     </button>
                 </div>
             </div>
 
             {/* Timeline / List View */}
             {loading ? (
-                <div className="flex-1 flex items-center justify-center text-gray-400">Loading schedule...</div>
+                <div className="flex-1 flex items-center justify-center text-gray-400">{t.dashboardLoading || "Loading schedule..."}</div>
             ) : trips.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-gray-400 bg-gray-50/50 rounded-xl border-2 border-dashed border-gray-200 m-2">
                     <Calendar size={48} className="mb-4 opacity-20" />
-                    <p>No trips scheduled for {selectedDate}.</p>
+                    <p>{t.noTripsScheduled || "No trips scheduled for"} {selectedDate}.</p>
                     <div className="flex gap-4 mt-4">
                         <button onClick={handleOpenTemplates} className="text-primary font-bold hover:underline flex items-center gap-1">
-                            <Copy size={16} /> Bulk Generate
+                            <Copy size={16} /> {t.bulkGenerate || "Bulk Generate"}
                         </button>
                         <span className="text-gray-300">|</span>
                         <button onClick={() => setShowCreateModal(true)} className="text-primary font-bold hover:underline">
-                            Create manually
+                            {t.createManually || "Create manually"}
                         </button>
                     </div>
                 </div>
@@ -403,7 +413,7 @@ export default function SchedulePage() {
                                 >
                                     <Bus size={14} />
                                     <span className="truncate max-w-[150px] font-medium">
-                                        {trip.vehicles ? `${trip.vehicles.plate_number} (${trip.vehicles.type})` : "Assign Vehicle"}
+                                        {trip.vehicles ? `${trip.vehicles.plate_number} (${trip.vehicles.type})` : (t.assignVehicle || "Assign Vehicle")}
                                     </span>
                                 </div>
 
@@ -418,7 +428,7 @@ export default function SchedulePage() {
                                 >
                                     <User size={14} />
                                     <span className="truncate max-w-[150px] font-medium">
-                                        {trip.drivers ? trip.drivers.name : "Assign Driver"}
+                                        {trip.drivers ? trip.drivers.name : (t.assignDriver || "Assign Driver")}
                                     </span>
                                 </div>
                             </div>
@@ -436,28 +446,28 @@ export default function SchedulePage() {
             {showCreateModal && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
-                        <h3 className="text-lg font-bold mb-4">Add New Trip</h3>
+                        <h3 className="text-lg font-bold mb-4">{t.addNewTrip || "Add New Trip"}</h3>
                         <form onSubmit={handleCreateTrip} className="flex flex-col gap-4">
                             <div>
-                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Route</label>
+                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">{t.routeLabel || "Route"}</label>
                                 <select name="route_id" className="w-full p-2 border rounded" required>
-                                    <option value="">Select a Route</option>
+                                    <option value="">--</option>
                                     {routes.map(r => (
                                         <option key={r.id} value={r.id}>{r.from_location} - {r.to_location}</option>
                                     ))}
                                 </select>
                             </div>
                             <div>
-                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Departure Time</label>
+                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">{t.departureTimeLabel || "Departure Time"}</label>
                                 <input name="time" type="time" className="w-full p-2 border rounded" required defaultValue="09:00" />
                             </div>
                             <div>
-                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Price</label>
+                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">{t.priceLabel || "Price"}</label>
                                 <input name="price" type="number" className="w-full p-2 border rounded" required defaultValue={250000} />
                             </div>
                             <div className="flex gap-2 pt-2">
-                                <button type="button" onClick={() => setShowCreateModal(false)} className="flex-1 py-2 border rounded">Cancel</button>
-                                <button type="submit" className="flex-1 py-2 bg-primary text-white rounded font-bold">Create</button>
+                                <button type="button" onClick={() => setShowCreateModal(false)} className="flex-1 py-2 border rounded">{t.cancel || "Cancel"}</button>
+                                <button type="submit" className="flex-1 py-2 bg-primary text-white rounded font-bold">{t.createBtn || "Create"}</button>
                             </div>
                         </form>
                     </div>
@@ -470,8 +480,8 @@ export default function SchedulePage() {
                     <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl p-6 max-h-[90vh] flex flex-col">
                         <div className="flex justify-between items-center mb-6">
                             <div>
-                                <h3 className="text-xl font-bold">Manage Schedule Templates</h3>
-                                <p className="text-sm text-gray-500">Define standard daily trips here.</p>
+                                <h3 className="text-xl font-bold">{t.manageTemplatesTitle || "Manage Schedule Templates"}</h3>
+                                <p className="text-sm text-gray-500">{t.defineStandardTrips || "Define standard daily trips here."}</p>
                             </div>
                             <button onClick={() => setShowTemplateModal(false)} className="text-gray-400 hover:text-gray-600">
                                 <XCircle size={24} />
@@ -481,8 +491,8 @@ export default function SchedulePage() {
                         {/* List of Templates */}
                         <div className="flex-1 overflow-y-auto border rounded-lg mb-6 bg-gray-50 p-2 space-y-2">
                             {templates.length === 0 ? (
-                                <div className="text-center py-8 text-gray-400">No templates yet. Add one below!</div>
-                            ) : templates.map(t => (
+                                <div className="text-center py-8 text-gray-400">{t.noTemplates || "No templates yet. Add one below!"}</div>
+                            ) : templates.map(tData => (
                                 <div key={t.id} className="bg-white p-3 rounded border flex justify-between items-center">
                                     <div className="flex items-center gap-4">
                                         <div className="font-bold text-lg w-16">{t.departure_time.substring(0, 5)}</div>
@@ -501,20 +511,20 @@ export default function SchedulePage() {
                         {/* Add Template Form */}
                         <form onSubmit={handleCreateTemplate} className="bg-gray-100 p-4 rounded-lg flex items-end gap-3 mb-6">
                             <div className="flex-1">
-                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Route</label>
+                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">{t.routeLabel || "Route"}</label>
                                 <select name="t_route_id" className="w-full p-2 border rounded text-sm" required>
-                                    <option value="">Select Route</option>
+                                    <option value="">--</option>
                                     {routes.map(r => (
                                         <option key={r.id} value={r.id}>{r.from_location} - {r.to_location}</option>
                                     ))}
                                 </select>
                             </div>
                             <div className="w-24">
-                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Time</label>
+                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">{t.departureTimeLabel || "Time"}</label>
                                 <input name="t_time" type="time" className="w-full p-2 border rounded text-sm" required defaultValue="07:00" />
                             </div>
                             <div className="w-28">
-                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Price</label>
+                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">{t.priceLabel || "Price"}</label>
                                 <input name="price" type="number" className="w-full p-2 border rounded text-sm" required defaultValue={250000} />
                             </div>
                             <button type="submit" className="bg-primary hover:bg-primary/90 text-white p-2 rounded-lg h-[38px] w-[38px] flex items-center justify-center">
@@ -525,11 +535,11 @@ export default function SchedulePage() {
                         {/* Bulk Generation Section */}
                         <div className="bg-blue-50 p-5 rounded-lg border border-blue-100">
                             <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
-                                <CalendarDays size={18} /> Bulk Schedule Generator
+                                <CalendarDays size={18} /> {t.bulkScheduleGenerator || "Bulk Schedule Generator"}
                             </h4>
                             <div className="flex items-end gap-4">
                                 <div>
-                                    <label className="text-xs font-bold text-gray-500 block mb-1">From Date</label>
+                                    <label className="text-xs font-bold text-gray-500 block mb-1">{t.fromDate || "From Date"}</label>
                                     <input
                                         type="date"
                                         value={bulkStartDate}
@@ -538,7 +548,7 @@ export default function SchedulePage() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-xs font-bold text-gray-500 block mb-1">To Date</label>
+                                    <label className="text-xs font-bold text-gray-500 block mb-1">{t.toDate || "To Date"}</label>
                                     <input
                                         type="date"
                                         value={bulkEndDate}
@@ -550,7 +560,7 @@ export default function SchedulePage() {
                                     onClick={handleBulkGenerate}
                                     className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 flex-1 shadow-sm transition-colors"
                                 >
-                                    Generate Logic
+                                    {t.generateLogic || "Generate"}
                                 </button>
                             </div>
                             <p className="text-xs text-blue-400 mt-2">
@@ -566,32 +576,32 @@ export default function SchedulePage() {
             {showAssignModal && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
-                        <h3 className="text-lg font-bold mb-1">Assign Resources</h3>
+                        <h3 className="text-lg font-bold mb-1">{t.assignResourcesTitle || "Assign Resources"}</h3>
                         <p className="text-xs text-gray-500 mb-4">
-                            For trip at {showAssignModal.departure_time}
+                            {showAssignModal.departure_time}
                         </p>
                         <form onSubmit={handleAssign} className="flex flex-col gap-4">
                             <div>
-                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Vehicle</label>
+                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">{t.vehicle || "Vehicle"}</label>
                                 <select name="vehicle_id" className="w-full p-2 border rounded" defaultValue={showAssignModal.vehicle_id || ""}>
-                                    <option value="">-- No Vehicle --</option>
+                                    <option value="">--</option>
                                     {vehicles.map(v => (
                                         <option key={v.id} value={v.id}>{v.label} ({v.subLabel})</option>
                                     ))}
                                 </select>
                             </div>
                             <div>
-                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Driver</label>
+                                <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">{t.driver || "Driver"}</label>
                                 <select name="driver_id" className="w-full p-2 border rounded" defaultValue={showAssignModal.driver_id || ""}>
-                                    <option value="">-- No Driver --</option>
+                                    <option value="">--</option>
                                     {drivers.map(d => (
                                         <option key={d.id} value={d.id}>{d.label}</option>
                                     ))}
                                 </select>
                             </div>
                             <div className="flex gap-2 pt-2">
-                                <button type="button" onClick={() => setShowAssignModal(null)} className="flex-1 py-2 border rounded">Cancel</button>
-                                <button type="submit" className="flex-1 py-2 bg-primary text-white rounded font-bold">Save Assignment</button>
+                                <button type="button" onClick={() => setShowAssignModal(null)} className="flex-1 py-2 border rounded">{t.cancel || "Cancel"}</button>
+                                <button type="submit" className="flex-1 py-2 bg-primary text-white rounded font-bold">{t.save || "Save"}</button>
                             </div>
                         </form>
                     </div>

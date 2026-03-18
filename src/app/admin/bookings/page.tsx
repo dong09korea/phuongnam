@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getReservations, updateReservation } from "@/lib/api";
+import { useLanguage } from "@/context/LanguageContext";
 import {
     Calendar, Clock, MapPin, Users, Phone, Search,
     ChevronDown, ChevronUp, CheckCircle, XCircle, AlertCircle, Bus
@@ -33,6 +34,7 @@ interface Reservation {
 }
 
 export default function BookingDashboard() {
+    const { t } = useLanguage();
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [bookings, setBookings] = useState<Reservation[]>([]);
     const [loading, setLoading] = useState(true);
@@ -103,8 +105,8 @@ export default function BookingDashboard() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                 <div>
-                    <h1 className="text-2xl font-extrabold text-gray-900 uppercase tracking-tight">Daily Operations</h1>
-                    <p className="text-gray-500 text-sm">Manage manifests and passenger check-ins.</p>
+                    <h1 className="text-2xl font-extrabold text-gray-900 uppercase tracking-tight">{t.dailyOperations || "Daily Operations"}</h1>
+                    <p className="text-gray-500 text-sm">{t.dailyOperationsDesc || "Manage manifests and passenger check-ins."}</p>
                 </div>
 
                 {/* Date Picker */}
@@ -146,23 +148,23 @@ export default function BookingDashboard() {
             {/* Stats Summary */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                    <div className="text-xs font-bold text-blue-600 uppercase mb-1">Total Trips</div>
+                    <div className="text-xs font-bold text-blue-600 uppercase mb-1">{t.totalTrips || "Total Trips"}</div>
                     <div className="text-2xl font-black text-blue-900">{trips.length}</div>
                 </div>
                 <div className="bg-green-50 p-4 rounded-xl border border-green-100">
-                    <div className="text-xs font-bold text-green-600 uppercase mb-1">Confirmed Pax</div>
+                    <div className="text-xs font-bold text-green-600 uppercase mb-1">{t.confirmedPax || "Confirmed Pax"}</div>
                     <div className="text-2xl font-black text-green-900">
                         {bookings.filter(b => b.status === 'confirmed').reduce((sum, b) => sum + b.passenger_count, 0)}
                     </div>
                 </div>
                 <div className="bg-orange-50 p-4 rounded-xl border border-orange-100">
-                    <div className="text-xs font-bold text-orange-600 uppercase mb-1">Pending</div>
+                    <div className="text-xs font-bold text-orange-600 uppercase mb-1">{t.dashboardPending || "Pending"}</div>
                     <div className="text-2xl font-black text-orange-900">
                         {bookings.filter(b => b.status === 'pending').reduce((sum, b) => sum + b.passenger_count, 0)}
                     </div>
                 </div>
                 <div className="bg-red-50 p-4 rounded-xl border border-red-100">
-                    <div className="text-xs font-bold text-red-600 uppercase mb-1">Seats Sold</div>
+                    <div className="text-xs font-bold text-red-600 uppercase mb-1">{t.seatsSold || "Seats Sold"}</div>
                     <div className="text-2xl font-black text-red-900">
                         {bookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + b.passenger_count, 0)}
                     </div>
@@ -174,8 +176,8 @@ export default function BookingDashboard() {
                 <div className="text-center py-20 text-gray-400">Loading schedule...</div>
             ) : trips.length === 0 ? (
                 <div className="bg-gray-50 rounded-xl border-dashed border-2 border-gray-300 p-20 text-center">
-                    <h3 className="text-lg font-bold text-gray-400 mb-2">No Scheduled Trips</h3>
-                    <p className="text-gray-400">There are no bookings for this date yet.</p>
+                    <h3 className="text-lg font-bold text-gray-400 mb-2">{t.noScheduledTrips || "No Scheduled Trips"}</h3>
+                    <p className="text-gray-400">{t.noBookingsForDate || "There are no bookings for this date yet."}</p>
                 </div>
             ) : (
                 <div className="space-y-6">
@@ -195,7 +197,7 @@ export default function BookingDashboard() {
                                     <div className="flex items-center gap-6">
                                         <div className="bg-gray-100 rounded-lg p-3 text-center min-w-[80px]">
                                             <div className="text-xl font-black text-gray-900">{trip.time}</div>
-                                            <div className="text-[10px] font-bold text-gray-500 uppercase">Departure</div>
+                                            <div className="text-[10px] font-bold text-gray-500 uppercase">{t.departureCap || "Departure"}</div>
                                         </div>
 
                                         <div>
@@ -203,8 +205,8 @@ export default function BookingDashboard() {
                                                 {trip.route}
                                             </h3>
                                             <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                                                <span className="flex items-center gap-1"><Users size={14} /> {trip.bookedSeats} pax</span>
-                                                <span className="flex items-center gap-1"><Bus size={14} /> TBD</span>
+                                                <span className="flex items-center gap-1"><Users size={14} /> {trip.bookedSeats} {t.pax || "pax"}</span>
+                                                <span className="flex items-center gap-1"><Bus size={14} /> {t.tbd || "TBD"}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -221,7 +223,7 @@ export default function BookingDashboard() {
                                     <div className="border-t border-gray-100 bg-gray-50/50 p-4 md:p-6 animate-in slide-in-from-top-2 duration-200">
                                         <div className="flex justify-between items-center mb-4">
                                             <h4 className="text-sm font-bold text-gray-500 uppercase flex items-center gap-2">
-                                                <Users size={16} /> Passenger Manifest
+                                                <Users size={16} /> {t.passengerManifest || "Passenger Manifest"}
                                             </h4>
                                         </div>
 
@@ -229,14 +231,14 @@ export default function BookingDashboard() {
                                             <table className="w-full text-sm text-left">
                                                 <thead className="bg-gray-50 text-gray-500 font-bold uppercase text-xs border-b border-gray-200">
                                                     <tr>
-                                                        <th className="px-4 py-3">Code</th>
-                                                        <th className="px-4 py-3">Passenger</th>
-                                                        <th className="px-4 py-3">Contact</th>
-                                                        <th className="px-4 py-3 text-center">Seats</th>
-                                                        <th className="px-4 py-3 text-center">Pax</th>
-                                                        <th className="px-4 py-3">Payment</th>
-                                                        <th className="px-4 py-3">Status</th>
-                                                        <th className="px-4 py-3 text-right">Actions</th>
+                                                        <th className="px-4 py-3">{t.tblCode || "Code"}</th>
+                                                        <th className="px-4 py-3">{t.tblPassenger || "Passenger"}</th>
+                                                        <th className="px-4 py-3">{t.tblContact || "Contact"}</th>
+                                                        <th className="px-4 py-3 text-center">{t.tblSeats || "Seats"}</th>
+                                                        <th className="px-4 py-3 text-center">{t.tblPax || "Pax"}</th>
+                                                        <th className="px-4 py-3">{t.tblPayment || "Payment"}</th>
+                                                        <th className="px-4 py-3">{t.tblStatus || "Status"}</th>
+                                                        <th className="px-4 py-3 text-right">{t.tblActions || "Actions"}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-gray-100">
@@ -289,7 +291,9 @@ export default function BookingDashboard() {
                                                                 `}>
                                                                     {booking.status === 'confirmed' && <CheckCircle size={10} />}
                                                                     {booking.status === 'pending' && <AlertCircle size={10} />}
-                                                                    {booking.status}
+                                                                    {booking.status === 'confirmed' ? (t.dashboardConfirmed || "Confirmed") : 
+                                                                     booking.status === 'pending' ? (t.dashboardPending || "Pending") : 
+                                                                     (t.cancelled || "CANCELLED")}
                                                                 </span>
                                                             </td>
                                                             <td className="px-4 py-3 text-right">
@@ -313,7 +317,7 @@ export default function BookingDashboard() {
                                                                         </button>
                                                                     )}
                                                                     <Link href={`/admin/bookings/${booking.id}`} className="text-blue-600 hover:bg-blue-50 p-1.5 rounded font-bold uppercase text-xs flex items-center gap-1 border border-blue-200 ml-2">
-                                                                        Details
+                                                                        {t.btnDetails || "Details"}
                                                                     </Link>
                                                                 </div>
                                                             </td>

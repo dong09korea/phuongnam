@@ -228,6 +228,15 @@ def create_vehicle(vehicle: schemas.VehicleCreate, db: Session = Depends(get_db)
     db.refresh(new_v)
     return new_v
 
+@router.delete("/vehicles/{id}")
+def delete_vehicle(id: int, db: Session = Depends(get_db), current_admin: models.Admin = Depends(get_current_admin)):
+    v = db.query(models.Vehicle).filter(models.Vehicle.id == id).first()
+    if not v:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    db.delete(v)
+    db.commit()
+    return {"success": True}
+
 # --- DRIVERS ---
 @router.get("/drivers", response_model=List[schemas.DriverOut])
 def get_drivers(db: Session = Depends(get_db), current_admin: models.Admin = Depends(get_current_admin)):
@@ -240,6 +249,15 @@ def create_driver(driver: schemas.DriverCreate, db: Session = Depends(get_db), c
     db.commit()
     db.refresh(new_d)
     return new_d
+
+@router.delete("/drivers/{id}")
+def delete_driver(id: int, db: Session = Depends(get_db), current_admin: models.Admin = Depends(get_current_admin)):
+    d = db.query(models.Driver).filter(models.Driver.id == id).first()
+    if not d:
+        raise HTTPException(status_code=404, detail="Driver not found")
+    db.delete(d)
+    db.commit()
+    return {"success": True}
 
 # --- SCHEDULES ---
 @router.get("/schedules", response_model=List[schemas.ScheduleOut])
